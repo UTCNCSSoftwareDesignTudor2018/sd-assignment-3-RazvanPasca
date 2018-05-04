@@ -19,15 +19,11 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        // Decorate the streams so we can send characters
-        // and not just bytes.  Ensure output is flushed
-        // after every newline.
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
-            PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
-
-            sendClientWelcomeMessage(clientOut);
+            PrintWriter serverToClientOut = new PrintWriter(socket.getOutputStream(), true);
+            sendClientWelcomeMessage(serverToClientOut);
 
             // Get messages from the client, line by line; return them capitalized
             while (true) {
@@ -35,7 +31,8 @@ public class ClientHandler extends Thread {
                 if (input == null || input.equalsIgnoreCase("close")) {
                     break;
                 }
-                clientOut.println(input.toUpperCase());
+                System.out.println("I have received " + input);
+                serverToClientOut.println(input.toUpperCase());
             }
         } catch (IOException e) {
             log("Error handling client# " + clientNumber + ": " + e);
@@ -54,10 +51,6 @@ public class ClientHandler extends Thread {
         clientOut.println("Enter a line with close to quit\n");
     }
 
-    /**
-     * Logs a simple message.  In this case we just write the
-     * message to the server applications standard output.
-     */
     private void log(String message) {
         System.out.println(message);
     }

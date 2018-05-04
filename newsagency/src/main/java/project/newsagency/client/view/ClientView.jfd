@@ -1,0 +1,40 @@
+JFDML JFormDesigner: "6.0.2.0.116" Java: "1.8.0_152-release" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :p:35:p, comp scrollPane1:::p:640:p, space :p:39:p, par l {seq {par l:::p {comp label1::::104:x, comp label2::::104:x}, space :0:0:x}, comp userNameTextField::::149:x, comp passwordField::l:::x, comp loginButton::l::149:x}, space :p:20:p}}"
+			"$verticalGroup": "par l {seq {par l {seq {space :p:23:p, comp scrollPane1:::p:429:p}, seq l {space :p:65:p, comp label1:::p::p, space u:::p, comp userNameTextField:::p::p, space s:::p, comp label2:::p::p, space s:::p, comp passwordField:::p::p, space s:::p, comp loginButton:::p::p}}, space ::10:x}}"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "table1"
+				} )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label1"
+				"text": "Username"
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "userNameTextField"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label2"
+				"text": "Password"
+			} )
+			add( new FormComponent( "javax.swing.JPasswordField" ) {
+				name: "passwordField"
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "loginButton"
+				"text": "Login as Writer"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 19, 10 )
+			"size": new java.awt.Dimension( 710, 403 )
+		} )
+	}
+}

@@ -1,88 +1,68 @@
 package project.newsagency.client.entities;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import project.newsagency.client.commands.Command;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import static project.newsagency.config.ConfigStarter.readConfig;
+import static project.newsagency.config.Constants.FILE_LOCATION;
+
 public class SimpleClient {
     private BufferedReader in;
-    private PrintWriter out;
-    private JFrame frame = new JFrame("Capitalize Client");
-    private JTextField dataField = new JTextField(40);
-    private JTextArea messageArea = new JTextArea(8, 60);
+    private PrintWriter clientToServerOut;
 
-    /**
-     * Constructs the client by laying out the GUI and registering a
-     * listener with the textfield so that pressing Enter in the
-     * listener sends the textfield contents to the server.
-     */
-    public SimpleClient() {
 
-        // Layout GUI
-        messageArea.setEditable(false);
-        frame.getContentPane().add(dataField, "North");
-        frame.getContentPane().add(new JScrollPane(messageArea), "Center");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        // Add Listeners
-        dataField.addActionListener(new ActionListener() {
-            /**
-             * Responds to pressing the enter key in the textfield
-             * by sending the contents of the text field to the
-             * server and displaying the response from the server
-             * in the text area.  If the response is "." we exit
-             * the whole application, which closes all sockets,
-             * streams and windows.
-             */
-            public void actionPerformed(ActionEvent e) {
-                out.println(dataField.getText());
-                String response;
-                try {
-                    response = in.readLine();
-                    if (response == null || response.equals("")) {
-                        System.exit(0);
-                    }
-                } catch (IOException ex) {
-                    response = "Error: " + ex;
-                }
-                messageArea.append(response + "\n");
-                dataField.selectAll();
-            }
-        });
+    public SimpleClient() throws IOException {
+
+        int port = readConfig(FILE_LOCATION);
+        connectToServer(port);
+//        dataField.addActionListener(new ActionListener() {
+//
+//            public void actionPerformed(ActionEvent e) {
+//                clientToServerOut.println(dataField.getText());
+//                String response;
+//                try {
+//                    response = in.readLine();
+//                    if (response == null || response.equals("")) {
+//                        System.exit(0);
+//                    }
+//                } catch (IOException ex) {
+//                    response = "Error: " + ex;
+//                }
+//                messageArea.append(response + "\n");
+//                dataField.selectAll();
+//            }
+//        });
     }
 
-    /**
-     * Implements the connection logic by prompting the end user for
-     * the server's IP address, connecting, setting up streams, and
-     * consuming the welcome messages from the server.  The Capitalizer
-     * protocol says that the server sends three lines of text to the
-     * client immediately after establishing a connection.
-     */
+
     public void connectToServer(int port) throws IOException {
 
-        // Get the server address from a dialog box.
-        String serverAddress = JOptionPane.showInputDialog(
-                frame,
-                "Enter IP Address of the Server:",
-                "Welcome to the Capitalization Program",
-                JOptionPane.QUESTION_MESSAGE);
 
         // Make connection and initialize streams
-        Socket socket = new Socket(serverAddress, port);
+        Socket socket = new Socket("127.0.0.1", port);
         in = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
+        clientToServerOut = new PrintWriter(socket.getOutputStream(), true);
 
         // Consume the initial welcoming messages from the server
         for (int i = 0; i < 3; i++) {
-            messageArea.append(in.readLine() + "\n");
+            System.out.println(in.readLine() + "\n");
         }
+    }
+
+    public void sendCommand(Command command) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        String jsonString = objectMapper.writeValueAsString(command);
+        clientToServerOut.println(jsonString);
     }
 
 }
