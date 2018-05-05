@@ -7,6 +7,7 @@ import project.newsagency.client.view.ClientView;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.server.persistence.entities.Author;
 import project.newsagency.utils.commands.client.CreateArticleCommand;
+import project.newsagency.utils.commands.client.DeleteArticleCommand;
 import project.newsagency.utils.commands.client.FetchArticlesCommand;
 import project.newsagency.utils.commands.client.LoginCommand;
 
@@ -86,29 +87,51 @@ public class ClientController implements Observer {
         if (row > -1)
             articleView.setArticleContent(client.getArticles().get(row));
         articleView.setVisible(true);
-        addArticleViewListeners(articleView);
+        addArticleViewListeners(articleView, row);
     }
 
-    private void addArticleViewListeners(ArticleView articleView) {
-        addArticleViewCreateListener(articleView);
-        addArticleViewDeleteListener(articleView);
+    private void addArticleViewListeners(ArticleView articleView, int row) {
+        addCreateArticleListener(articleView, row);
+        addDeleteArticleListener(articleView, row);
     }
 
-    private void addArticleViewDeleteListener(ArticleView articleView) {
-        articleView.addCreateArticleButtonListener(e -> {
-            sendCreateArticleCommand();
+    private void addDeleteArticleListener(ArticleView articleView, int row) {
+        articleView.addRemoveArticleButtonListener(e -> {
+            try {
+                sendDeleteArticleCommand(client.getArticles().get(row));
+            } catch (JsonProcessingException e1) {
+                e1.printStackTrace();
+            }
         });
     }
 
-    private void addArticleViewCreateListener(ArticleView articleView) {
+
+    private void addCreateArticleListener(ArticleView articleView, int row) {
+        articleView.addCreateArticleButtonListener(e -> {
+            try {
+                Article article;
+                article = articleView.getArticleFromView();
+                if (row > -1) {
+                    article.setAuthors(client.getArticles().get(row).getAuthors());
+                    article.setArticleId(client.getArticles().get(row).getArticleId());
+                }
+                sendCreateArticleCommand(article);
+            } catch (JsonProcessingException e1) {
+                e1.printStackTrace();
+            }
+        });
     }
 
     private void sendFetchArticlesCommand() throws JsonProcessingException {
         client.sendCommand(new FetchArticlesCommand());
     }
 
-    private void sendCreateArticleCommand() {
-        client.sendCommand(new CreateArticleCommand());
+    private void sendDeleteArticleCommand(Article article) throws JsonProcessingException {
+        client.sendCommand(new DeleteArticleCommand(article));
+    }
+
+    private void sendCreateArticleCommand(Article article) throws JsonProcessingException {
+        client.sendCommand(new CreateArticleCommand(article));
     }
 
     @Override

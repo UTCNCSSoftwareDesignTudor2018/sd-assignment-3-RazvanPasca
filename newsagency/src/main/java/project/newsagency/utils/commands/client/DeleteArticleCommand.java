@@ -3,16 +3,17 @@ package project.newsagency.utils.commands.client;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.utils.commands.Command;
 
-public class CreateArticleCommand extends Command {
+public class DeleteArticleCommand extends Command {
     private Article article;
 
-    public CreateArticleCommand() {
-        super("createArticle");
+    public DeleteArticleCommand(Article article) {
+        super("deleteArticle");
+        this.article = article;
     }
 
-    public CreateArticleCommand(Article article) {
-        super("createArticle");
-        this.article = article;
+    public DeleteArticleCommand() {
+        super("deleteArticle");
+
     }
 
     public Article getArticle() {

@@ -12,6 +12,8 @@ import project.newsagency.server.persistence.entities.Author;
 import project.newsagency.server.services.ArticleServiceImpl;
 import project.newsagency.server.services.AuthorServiceImpl;
 import project.newsagency.utils.commands.Command;
+import project.newsagency.utils.commands.client.CreateArticleCommand;
+import project.newsagency.utils.commands.client.DeleteArticleCommand;
 import project.newsagency.utils.commands.client.FetchArticlesCommand;
 import project.newsagency.utils.commands.client.LoginCommand;
 import project.newsagency.utils.commands.server.FailedLoginCommandResponse;
@@ -42,6 +44,22 @@ public class ServerCommandInterpreter {
             executeFetchArticlesCommand(writer);
         if (command instanceof LoginCommand)
             executeLoginCommand((LoginCommand) command, writer);
+        if (command instanceof CreateArticleCommand)
+            executeCreateArticleCommand((CreateArticleCommand) command);
+        if (command instanceof DeleteArticleCommand)
+            executeDeleteArticleCommand((DeleteArticleCommand) command);
+    }
+
+    private void executeDeleteArticleCommand(DeleteArticleCommand command) {
+        Article article = command.getArticle();
+        articleService.deleteArticle(article);
+        System.out.println("Deleted " + article);
+    }
+
+    private void executeCreateArticleCommand(CreateArticleCommand command) {
+        Article article = command.getArticle();
+        article.addAuthor(clientHandler.getLoggedInAuthor());
+        articleService.saveArticle(article);
     }
 
     private void executeFetchArticlesCommand(PrintWriter serverToClientOut) throws JsonProcessingException {

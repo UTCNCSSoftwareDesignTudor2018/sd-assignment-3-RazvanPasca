@@ -22,7 +22,7 @@ public class ClientHandler extends Thread {
         this.socket = socket;
         this.clientNumber = clientNumber;
         commandInterpreter.setClientHandler(this);
-        log("New connection with client# " + clientNumber + " at " + socket);
+        log("New connection with client #" + clientNumber + " at " + socket);
     }
 
     private ClientHandler() {

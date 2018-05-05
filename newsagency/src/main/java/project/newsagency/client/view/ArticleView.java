@@ -190,6 +190,14 @@ public class ArticleView extends JFrame {
         setTitleTextField(article.getTitle());
     }
 
+    public Article getArticleFromView() {
+        Article article = new Article();
+        article.setAbs(this.getAbstractTextField());
+        article.setTitle(this.getTitleTextField());
+        article.setBody(this.getBodyTextArea());
+        return article;
+    }
+
     public void addRemoveArticleButtonListener(ActionListener e) {
         this.removeArticleButton.addActionListener(e);
     }
