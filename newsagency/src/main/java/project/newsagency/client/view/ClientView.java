@@ -1,11 +1,15 @@
 /*
- * Created by JFormDesigner on Fri May 04 20:58:42 EEST 2018
+ * Created by JFormDesigner on Fri May 04 20:32:10 EEST 2018
  */
 
 package project.newsagency.client.view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * @author Razvan Pasca
@@ -23,6 +27,8 @@ public class ClientView extends JFrame {
 
     public ClientView() {
         initComponents();
+        setVisible(true);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void initComponents() {
@@ -52,6 +58,10 @@ public class ClientView extends JFrame {
 
         //---- loginButton ----
         loginButton.setText("Login as Writer");
+
+        //---- table1 ----
+        table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table1.setFillsViewportHeight(true);
 
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
@@ -97,4 +107,39 @@ public class ClientView extends JFrame {
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    public void addLoginListener(ActionListener e) {
+        this.loginButton.addActionListener(e);
+    }
+
+    public String getUserNameTextField() {
+        return userNameTextField.getText();
+    }
+
+    public void setUserNameTextField(String userNameTextField) {
+        this.userNameTextField.setText(userNameTextField);
+    }
+
+    public String getPasswordField() {
+        return String.valueOf(passwordField.getPassword());
+    }
+
+    public void setPasswordField(String passwordField) {
+        this.passwordField.setToolTipText(passwordField);
+    }
+
+    public void setTableModel(DefaultTableModel tableModel) {
+        this.table1.setModel(tableModel);
+    }
+
+
+    public void addTableMouseListener(MouseAdapter e) {
+        this.table1.addMouseListener(e);
+    }
+
+    public int getTableRow(MouseEvent mouseEvent) {
+        JTable table = (JTable) mouseEvent.getSource();
+        Point point = mouseEvent.getPoint();
+        return table.rowAtPoint(point);
+    }
 }

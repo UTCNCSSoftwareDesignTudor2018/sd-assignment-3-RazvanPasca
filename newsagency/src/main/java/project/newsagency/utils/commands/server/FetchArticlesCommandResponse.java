@@ -1,4 +1,4 @@
-package project.newsagency.utils.commands.client;
+package project.newsagency.utils.commands.server;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import project.newsagency.server.persistence.entities.Article;
@@ -12,15 +12,17 @@ public class FetchArticlesCommandResponse extends Command {
     private Set<Article> articles;
 
     public FetchArticlesCommandResponse(Set<Article> articles) {
-        super("FetchArticlesCommandResponse");
+        super("FetchArticlesResponse");
         this.articles = articles;
+    }
+
+    public FetchArticlesCommandResponse() {
+        super("FetchArticlesResponse");
     }
 
     public Set<Article> getArticles() {
         return articles;
     }
 
-    public void setArticles(Set<Article> articles) {
-        this.articles = articles;
-    }
+
 }

@@ -12,10 +12,11 @@ import project.newsagency.server.persistence.entities.Author;
 import project.newsagency.server.services.ArticleServiceImpl;
 import project.newsagency.server.services.AuthorServiceImpl;
 import project.newsagency.utils.commands.Command;
-import project.newsagency.utils.commands.client.FetchArticlesCommandResponse;
+import project.newsagency.utils.commands.client.FetchArticlesCommand;
 import project.newsagency.utils.commands.client.LoginCommand;
 import project.newsagency.utils.commands.server.FailedLoginCommandResponse;
-import project.newsagency.utils.commands.server.FetchArticlesCommand;
+import project.newsagency.utils.commands.server.FetchArticlesCommandResponse;
+import project.newsagency.utils.commands.server.SuccessfulLoginCommandResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,10 +56,12 @@ public class ServerCommandInterpreter {
         if (author == null) {
             FailedLoginCommandResponse failedLoginCommandResponse = new FailedLoginCommandResponse();
             sendClientResponse(failedLoginCommandResponse, serverToClientOut);
-        } else
+        } else {
             clientHandler.setLoggedInAuthor(author);
-        System.out.println("Logged in author is " + author);
-
+            SuccessfulLoginCommandResponse successfulLoginCommandResponse = new SuccessfulLoginCommandResponse();
+            sendClientResponse(successfulLoginCommandResponse, serverToClientOut);
+            System.out.println("Logged in author is " + author);
+        }
     }
 
     private void sendClientResponse(Object object, PrintWriter clientOut) throws JsonProcessingException {

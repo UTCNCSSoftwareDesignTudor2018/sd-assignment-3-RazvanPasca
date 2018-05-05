@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import project.newsagency.utils.commands.Command;
-import project.newsagency.utils.commands.client.FetchArticlesCommandResponse;
 import project.newsagency.utils.commands.server.FailedLoginCommandResponse;
+import project.newsagency.utils.commands.server.FetchArticlesCommandResponse;
+import project.newsagency.utils.commands.server.SuccessfulLoginCommandResponse;
 
 import java.io.IOException;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 public class ClientCommandFactory {
     private static final String FETCH_ARTICLES_COMMAND_RESPONSE = "fetchArticlesResponse";
     private static final String FAILED_LOGIN_COMMAND_RESPONSE = "failedLoginResponse";
+    private static final String SUCCESSFUL_LOGIN_COMMAND_RESPONSE = "successfulLoginResponse";
 
     private ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -22,6 +24,8 @@ public class ClientCommandFactory {
             return mapper.readValue(type, FetchArticlesCommandResponse.class);
         if (command.getMessage().equalsIgnoreCase(FAILED_LOGIN_COMMAND_RESPONSE))
             return mapper.readValue(type, FailedLoginCommandResponse.class);
+        if (command.getMessage().equalsIgnoreCase(SUCCESSFUL_LOGIN_COMMAND_RESPONSE))
+            return mapper.readValue(type, SuccessfulLoginCommandResponse.class);
         return null;
     }
 }

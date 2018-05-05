@@ -14,19 +14,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Set;
+import java.util.List;
+import java.util.Observable;
 
 import static project.newsagency.config.ConfigSetup.readConfig;
 import static project.newsagency.config.Constants.FILE_LOCATION;
 
-public class SimpleClient {
+public class Client extends Observable implements Runnable {
     private ClientCommandInterpreter commandInterpreter;
     private BufferedReader in;
     private PrintWriter clientToServerOut;
     private Socket socket;
-    private Set<Article> articles;
+    private List<Article> articles;
+    private boolean loginStatus;
 
-    public SimpleClient() throws IOException {
+    public Client() throws IOException {
         connectToServer();
         commandInterpreter = new ClientCommandInterpreter(this);
     }
@@ -42,6 +44,7 @@ public class SimpleClient {
         for (int i = 0; i < 3; i++) {
             System.out.println(in.readLine() + "\n");
         }
+        new Thread(this).start();
     }
 
     public void sendCommand(Command command) throws JsonProcessingException {
@@ -52,19 +55,37 @@ public class SimpleClient {
         System.out.println("Command sent " + jsonString + " command");
     }
 
-    public void getCommands() throws IOException {
-        String input = in.readLine();
-        commandInterpreter.setJson(input);
-        commandInterpreter.executeCommand(clientToServerOut);
-        System.out.println("Command executed " + input);
+    @Override
+    public void run() {
+        while (true) {
+            String input = null;
+            try {
+                input = in.readLine();
+                commandInterpreter.setJson(input);
+                commandInterpreter.executeCommand(clientToServerOut);
+                System.out.println("Command executed " + input);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-
-    public Set<Article> getArticles() {
+    public List<Article> getArticles() {
         return articles;
     }
 
-    public void setArticles(Set<Article> articles) {
+    public void setArticles(List<Article> articles) {
+        setChanged();
         this.articles = articles;
+        notifyObservers(articles);
+        clearChanged();
+    }
+
+    public boolean getLoginStatus() {
+        return this.loginStatus;
+    }
+
+    public void setLoginStatus(boolean loginStatus) {
+        this.loginStatus = loginStatus;
     }
 }

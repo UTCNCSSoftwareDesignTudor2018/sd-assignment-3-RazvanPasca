@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import project.newsagency.utils.commands.Command;
+import project.newsagency.utils.commands.client.FetchArticlesCommand;
 import project.newsagency.utils.commands.client.LoginCommand;
-import project.newsagency.utils.commands.server.FetchArticlesCommand;
 
 import java.io.IOException;
 

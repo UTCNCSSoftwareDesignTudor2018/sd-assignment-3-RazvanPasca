@@ -4,15 +4,17 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import project.newsagency.client.entities.SimpleClient;
+import project.newsagency.client.entities.Client;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.utils.commands.Command;
-import project.newsagency.utils.commands.client.FetchArticlesCommandResponse;
 import project.newsagency.utils.commands.server.FailedLoginCommandResponse;
+import project.newsagency.utils.commands.server.FetchArticlesCommandResponse;
+import project.newsagency.utils.commands.server.SuccessfulLoginCommandResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientCommandInterpreter {
 
@@ -20,12 +22,12 @@ public class ClientCommandInterpreter {
     private String jsonString;
     private ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
             configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
-    private SimpleClient client;
+    private Client client;
 
     public ClientCommandInterpreter() {
     }
 
-    public ClientCommandInterpreter(SimpleClient client) {
+    public ClientCommandInterpreter(Client client) {
         this.client = client;
     }
 
@@ -39,14 +41,21 @@ public class ClientCommandInterpreter {
             executeFetchArticlesCommandResponse((FetchArticlesCommandResponse) command);
         if (command instanceof FailedLoginCommandResponse)
             executeFailedLoginCommandResponse((FailedLoginCommandResponse) command);
+        if (command instanceof SuccessfulLoginCommandResponse)
+            executeSuccessfulLoginCommandResponse((SuccessfulLoginCommandResponse) command);
+    }
+
+    private void executeSuccessfulLoginCommandResponse(SuccessfulLoginCommandResponse command) {
+        client.setLoginStatus(true);
     }
 
     private void executeFailedLoginCommandResponse(FailedLoginCommandResponse command) {
+        client.setLoginStatus(false);
         System.out.println("Wrong login details, please retry");
     }
 
     private void executeFetchArticlesCommandResponse(FetchArticlesCommandResponse command) {
-        Set<Article> articles = command.getArticles();
+        List<Article> articles = new ArrayList<>(command.getArticles());
         client.setArticles(articles);
     }
 }
