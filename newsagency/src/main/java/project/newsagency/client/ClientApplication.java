@@ -7,5 +7,6 @@ import project.newsagency.client.view.SimpleClientView;
 public class ClientApplication {
     public static void main(String[] args) throws Exception {
         SimpleClientController simpleClientController = new SimpleClientController(new SimpleClientView(), new SimpleClient());
+        simpleClientController.start();
     }
 }

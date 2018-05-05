@@ -15,4 +15,12 @@ public class FetchArticlesCommandResponse extends Command {
         super("FetchArticlesCommandResponse");
         this.articles = articles;
     }
+
+    public Set<Article> getArticles() {
+        return articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        this.articles = articles;
+    }
 }

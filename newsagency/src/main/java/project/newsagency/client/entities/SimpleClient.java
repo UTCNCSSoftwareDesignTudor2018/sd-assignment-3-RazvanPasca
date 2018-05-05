@@ -14,21 +14,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 
 import static project.newsagency.config.ConfigSetup.readConfig;
 import static project.newsagency.config.Constants.FILE_LOCATION;
 
-public class SimpleClient implements Observer {
+public class SimpleClient {
     private ClientCommandInterpreter commandInterpreter;
     private BufferedReader in;
     private PrintWriter clientToServerOut;
     private Socket socket;
+    private Set<Article> articles;
 
     public SimpleClient() throws IOException {
         connectToServer();
+        commandInterpreter = new ClientCommandInterpreter(this);
     }
 
     public void connectToServer() throws IOException {
@@ -49,18 +49,22 @@ public class SimpleClient implements Observer {
                 configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         String jsonString = objectMapper.writeValueAsString(command);
         clientToServerOut.println(jsonString);
-        System.out.println("I sent " + jsonString + " command");
+        System.out.println("Command sent " + jsonString + " command");
     }
 
     public void getCommands() throws IOException {
         String input = in.readLine();
         commandInterpreter.setJson(input);
         commandInterpreter.executeCommand(clientToServerOut);
+        System.out.println("Command executed " + input);
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        Set<Article> articles = (Set<Article>) arg;
-        System.out.println(articles);
+
+    public Set<Article> getArticles() {
+        return articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        this.articles = articles;
     }
 }

@@ -2,6 +2,7 @@ package project.newsagency.server.handlers;
 
 import project.newsagency.server.handlers.utils.BeanUtil;
 import project.newsagency.server.handlers.utils.ServerCommandInterpreter;
+import project.newsagency.server.persistence.entities.Author;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,14 +16,28 @@ public class ClientHandler extends Thread {
     private int clientNumber;
     private BufferedReader in;
     private PrintWriter serverToClientOut;
+    private Author loggedInAuthor;
 
     public ClientHandler(Socket socket, int clientNumber) {
         this.socket = socket;
         this.clientNumber = clientNumber;
+        commandInterpreter.setClientHandler(this);
         log("New connection with client# " + clientNumber + " at " + socket);
     }
 
     private ClientHandler() {
+    }
+
+    boolean isAuthorLoggedIn() {
+        return loggedInAuthor != null;
+    }
+
+    public Author getLoggedInAuthor() {
+        return loggedInAuthor;
+    }
+
+    public void setLoggedInAuthor(Author loggedInAuthor) {
+        this.loggedInAuthor = loggedInAuthor;
     }
 
     @Override

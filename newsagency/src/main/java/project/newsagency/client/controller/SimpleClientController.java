@@ -9,28 +9,26 @@ import project.newsagency.utils.commands.client.LoginCommand;
 import project.newsagency.utils.commands.server.FetchArticlesCommand;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
-public class SimpleClientController {
+public class SimpleClientController extends Thread {
 
     private SimpleClientView simpleClientView;
     private SimpleClient client;
-    private List<Article> articles;
 
     public SimpleClientController(SimpleClientView simpleClientView, SimpleClient client) throws JsonProcessingException {
         this.client = client;
         this.simpleClientView = simpleClientView;
-        System.out.println("here");
-        client.sendCommand(new FetchArticlesCommand());
+        sendFetchArticlesCommand();
         addListeners();
     }
 
-    public List<Article> getArticles() {
-        return articles;
+    public Set<Article> getArticles() {
+        return client.getArticles();
     }
 
-    public void setArticles(List<Article> articles) {
-        this.articles = articles;
+    public void setArticles(Set<Article> articles) {
+        this.client.setArticles(articles);
     }
 
     private void addListeners() {
@@ -44,9 +42,18 @@ public class SimpleClientController {
         });
     }
 
-    public void runClient() throws IOException {
+    private void sendFetchArticlesCommand() throws JsonProcessingException {
+        client.sendCommand(new FetchArticlesCommand());
+    }
+
+    @Override
+    public void run() {
         while (true) {
-            client.getCommands();
+            try {
+                client.getCommands();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

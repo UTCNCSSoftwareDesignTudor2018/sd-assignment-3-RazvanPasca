@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
+import project.newsagency.server.handlers.ClientHandler;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.server.persistence.entities.Author;
 import project.newsagency.server.services.ArticleServiceImpl;
@@ -13,6 +14,7 @@ import project.newsagency.server.services.AuthorServiceImpl;
 import project.newsagency.utils.commands.Command;
 import project.newsagency.utils.commands.client.FetchArticlesCommandResponse;
 import project.newsagency.utils.commands.client.LoginCommand;
+import project.newsagency.utils.commands.server.FailedLoginCommandResponse;
 import project.newsagency.utils.commands.server.FetchArticlesCommand;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ public class ServerCommandInterpreter {
     private ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
             configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
     private String jsonString;
+    private ClientHandler clientHandler;
 
     public ServerCommandInterpreter() {
     }
@@ -49,10 +52,12 @@ public class ServerCommandInterpreter {
 
     private void executeLoginCommand(LoginCommand command, PrintWriter serverToClientOut) throws JsonProcessingException {
         Author author = authorService.login(command.getAuthor());
-        if (author == null)
-            sendClientResponse("Author doesn't exist", serverToClientOut);
-        sendClientResponse(author, serverToClientOut);
-        System.out.println("Logged in author is " + jsonString);
+        if (author == null) {
+            FailedLoginCommandResponse failedLoginCommandResponse = new FailedLoginCommandResponse();
+            sendClientResponse(failedLoginCommandResponse, serverToClientOut);
+        } else
+            clientHandler.setLoggedInAuthor(author);
+        System.out.println("Logged in author is " + author);
 
     }
 
@@ -63,5 +68,9 @@ public class ServerCommandInterpreter {
 
     public void setJson(String input) {
         this.jsonString = input;
+    }
+
+    public void setClientHandler(ClientHandler clientHandler) {
+        this.clientHandler = clientHandler;
     }
 }
