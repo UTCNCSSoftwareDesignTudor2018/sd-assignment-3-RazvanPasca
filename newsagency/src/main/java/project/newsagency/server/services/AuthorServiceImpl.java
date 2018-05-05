@@ -41,4 +41,9 @@ public class AuthorServiceImpl implements AuthorService {
         else
             return null;
     }
+
+    @Override
+    public Author save(Author author) {
+        return authorRepository.save(author);
+    }
 }

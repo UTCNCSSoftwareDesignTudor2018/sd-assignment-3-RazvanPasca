@@ -73,6 +73,7 @@ public class ClientController implements Observer {
                 if (mouseEvent.getClickCount() == 2) {
                     try {
                         showArticleView(clientView.getTableRow(mouseEvent));
+
                     } catch (ArrayIndexOutOfBoundsException e) {
                         showArticleView(-1);
                     }
@@ -99,6 +100,7 @@ public class ClientController implements Observer {
         articleView.addRemoveArticleButtonListener(e -> {
             try {
                 sendDeleteArticleCommand(client.getArticles().get(row));
+                articleView.dispose();
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
             }
@@ -116,6 +118,7 @@ public class ClientController implements Observer {
                     article.setArticleId(client.getArticles().get(row).getArticleId());
                 }
                 sendCreateArticleCommand(article);
+                articleView.dispose();
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
             }

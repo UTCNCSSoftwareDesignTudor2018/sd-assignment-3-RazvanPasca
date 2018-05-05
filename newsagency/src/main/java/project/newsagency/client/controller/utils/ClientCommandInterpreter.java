@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ClientCommandInterpreter {
 
+    private PrintWriter clientToServerOut;
     private ClientCommandFactory commandFactory = new ClientCommandFactory();
     private String jsonString;
     private ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
@@ -27,7 +28,8 @@ public class ClientCommandInterpreter {
     public ClientCommandInterpreter() {
     }
 
-    public ClientCommandInterpreter(Client client) {
+    public ClientCommandInterpreter(Client client, PrintWriter clientToServerOut) {
+        this.clientToServerOut = clientToServerOut;
         this.client = client;
     }
 
@@ -40,16 +42,16 @@ public class ClientCommandInterpreter {
         if (command instanceof FetchArticlesCommandResponse)
             executeFetchArticlesCommandResponse((FetchArticlesCommandResponse) command);
         if (command instanceof FailedLoginCommandResponse)
-            executeFailedLoginCommandResponse((FailedLoginCommandResponse) command);
+            executeFailedLoginCommandResponse();
         if (command instanceof SuccessfulLoginCommandResponse)
-            executeSuccessfulLoginCommandResponse((SuccessfulLoginCommandResponse) command);
+            executeSuccessfulLoginCommandResponse();
     }
 
-    private void executeSuccessfulLoginCommandResponse(SuccessfulLoginCommandResponse command) {
+    private void executeSuccessfulLoginCommandResponse() {
         client.setLoginStatus(true);
     }
 
-    private void executeFailedLoginCommandResponse(FailedLoginCommandResponse command) {
+    private void executeFailedLoginCommandResponse() {
         client.setLoginStatus(false);
         System.out.println("Wrong login details, please retry");
     }

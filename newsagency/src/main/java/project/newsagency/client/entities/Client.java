@@ -30,7 +30,7 @@ public class Client extends Observable implements Runnable {
 
     public Client() throws IOException {
         connectToServer();
-        commandInterpreter = new ClientCommandInterpreter(this);
+        commandInterpreter = new ClientCommandInterpreter(this, clientToServerOut);
     }
 
     public void connectToServer() throws IOException {

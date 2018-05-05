@@ -16,13 +16,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Article saveArticle(Article article) {
-        return articleRepository.save(article);
+        Article article1 = articleRepository.save(article);
+        return article1;
     }
 
-    @Override
-    public Article updateArticle(Article article) {
-        return articleRepository.save(article);
-    }
 
     @Override
     public void deleteArticle(Article article) {
@@ -33,4 +30,6 @@ public class ArticleServiceImpl implements ArticleService {
     public Set<Article> viewAllArticles() {
         return new HashSet<Article>(articleRepository.findAll());
     }
+
+
 }

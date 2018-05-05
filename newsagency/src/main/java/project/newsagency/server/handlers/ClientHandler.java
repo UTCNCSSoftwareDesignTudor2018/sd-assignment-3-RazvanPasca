@@ -1,5 +1,6 @@
 package project.newsagency.server.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import project.newsagency.server.handlers.utils.BeanUtil;
 import project.newsagency.server.handlers.utils.ServerCommandInterpreter;
 import project.newsagency.server.persistence.entities.Author;
@@ -9,8 +10,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements Observer {
     private ServerCommandInterpreter commandInterpreter = BeanUtil.getBean(ServerCommandInterpreter.class);
     private Socket socket;
     private int clientNumber;
@@ -19,6 +22,7 @@ public class ClientHandler extends Thread {
     private Author loggedInAuthor;
 
     public ClientHandler(Socket socket, int clientNumber) {
+        commandInterpreter.addObserver(this);
         this.socket = socket;
         this.clientNumber = clientNumber;
         commandInterpreter.setClientHandler(this);
@@ -28,9 +32,6 @@ public class ClientHandler extends Thread {
     private ClientHandler() {
     }
 
-    boolean isAuthorLoggedIn() {
-        return loggedInAuthor != null;
-    }
 
     public Author getLoggedInAuthor() {
         return loggedInAuthor;
@@ -46,15 +47,15 @@ public class ClientHandler extends Thread {
             in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
             serverToClientOut = new PrintWriter(socket.getOutputStream(), true);
+            commandInterpreter.setPrintWriter(this.serverToClientOut);
             sendClientWelcomeMessage(serverToClientOut);
-
             while (true) {
                 String input = in.readLine();
                 if (input == null || input.equalsIgnoreCase("close")) {
                     break;
                 }
                 commandInterpreter.setJson(input);
-                commandInterpreter.executeCommand(serverToClientOut);
+                commandInterpreter.executeCommand();
             }
         } catch (IOException e) {
             log("Error handling client #" + clientNumber + ": " + e);
@@ -75,6 +76,15 @@ public class ClientHandler extends Thread {
 
     private void log(String message) {
         System.out.println(message);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            commandInterpreter.executeFetchArticlesCommand();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }
 

@@ -7,8 +7,6 @@ import java.util.Set;
 public interface ArticleService {
     Article saveArticle(Article article);
 
-    Article updateArticle(Article article);
-
     void deleteArticle(Article article);
 
     Set<Article> viewAllArticles();

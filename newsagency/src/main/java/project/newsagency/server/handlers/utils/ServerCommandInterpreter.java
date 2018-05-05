@@ -22,10 +22,11 @@ import project.newsagency.utils.commands.server.SuccessfulLoginCommandResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Observable;
 import java.util.Set;
 
 @Component("executor")
-public class ServerCommandInterpreter {
+public class ServerCommandInterpreter extends Observable {
 
     private ArticleServiceImpl articleService = BeanUtil.getBean(ArticleServiceImpl.class);
     private AuthorServiceImpl authorService = BeanUtil.getBean(AuthorServiceImpl.class);
@@ -34,57 +35,68 @@ public class ServerCommandInterpreter {
             configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
     private String jsonString;
     private ClientHandler clientHandler;
+    private PrintWriter serverToClientOut;
 
     public ServerCommandInterpreter() {
     }
 
-    public void executeCommand(PrintWriter writer) throws IOException {
+    public void executeCommand() throws IOException {
         Command command = commandFactory.getCommand(this.jsonString);
         if (command instanceof FetchArticlesCommand)
-            executeFetchArticlesCommand(writer);
+            executeFetchArticlesCommand();
         if (command instanceof LoginCommand)
-            executeLoginCommand((LoginCommand) command, writer);
+            executeLoginCommand((LoginCommand) command);
         if (command instanceof CreateArticleCommand)
             executeCreateArticleCommand((CreateArticleCommand) command);
         if (command instanceof DeleteArticleCommand)
             executeDeleteArticleCommand((DeleteArticleCommand) command);
     }
 
-    private void executeDeleteArticleCommand(DeleteArticleCommand command) {
+
+    private synchronized void executeDeleteArticleCommand(DeleteArticleCommand command) {
         Article article = command.getArticle();
         articleService.deleteArticle(article);
+        setChanged();
+        notifyObservers();
+        clearChanged();
         System.out.println("Deleted " + article);
     }
 
-    private void executeCreateArticleCommand(CreateArticleCommand command) {
+    private synchronized void executeCreateArticleCommand(CreateArticleCommand command) {
         Article article = command.getArticle();
         article.addAuthor(clientHandler.getLoggedInAuthor());
+        authorService.save(clientHandler.getLoggedInAuthor());
         articleService.saveArticle(article);
+        setChanged();
+        notifyObservers();
+        clearChanged();
+        System.out.println("Created/Updated " + article);
     }
 
-    private void executeFetchArticlesCommand(PrintWriter serverToClientOut) throws JsonProcessingException {
+    public void executeFetchArticlesCommand() throws JsonProcessingException {
         Set<Article> articles = articleService.viewAllArticles();
         System.out.println(articles);
         FetchArticlesCommandResponse fetchArticlesCommandResponse = new FetchArticlesCommandResponse(articles);
-        sendClientResponse(fetchArticlesCommandResponse, serverToClientOut);
+        sendClientResponse(fetchArticlesCommandResponse);
     }
 
-    private void executeLoginCommand(LoginCommand command, PrintWriter serverToClientOut) throws JsonProcessingException {
+    private void executeLoginCommand(LoginCommand command) throws JsonProcessingException {
         Author author = authorService.login(command.getAuthor());
         if (author == null) {
             FailedLoginCommandResponse failedLoginCommandResponse = new FailedLoginCommandResponse();
-            sendClientResponse(failedLoginCommandResponse, serverToClientOut);
+            sendClientResponse(failedLoginCommandResponse);
         } else {
             clientHandler.setLoggedInAuthor(author);
             SuccessfulLoginCommandResponse successfulLoginCommandResponse = new SuccessfulLoginCommandResponse();
-            sendClientResponse(successfulLoginCommandResponse, serverToClientOut);
+            sendClientResponse(successfulLoginCommandResponse);
             System.out.println("Logged in author is " + author);
         }
     }
 
-    private void sendClientResponse(Object object, PrintWriter clientOut) throws JsonProcessingException {
+    private void sendClientResponse(Object object) throws JsonProcessingException {
         String jsonString = mapper.writeValueAsString(object);
-        clientOut.println(jsonString);
+        System.out.println("Send response " + jsonString);
+        serverToClientOut.println(jsonString);
     }
 
     public void setJson(String input) {
@@ -93,5 +105,9 @@ public class ServerCommandInterpreter {
 
     public void setClientHandler(ClientHandler clientHandler) {
         this.clientHandler = clientHandler;
+    }
+
+    public void setPrintWriter(PrintWriter printWriter) {
+        this.serverToClientOut = printWriter;
     }
 }

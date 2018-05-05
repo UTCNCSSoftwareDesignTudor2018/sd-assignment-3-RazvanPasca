@@ -10,4 +10,6 @@ public interface AuthorService {
     Article writeArticle(Article article, Author author);
 
     Author login(Author author);
+
+    Author save(Author author);
 }

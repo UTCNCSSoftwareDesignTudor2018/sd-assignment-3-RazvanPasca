@@ -4,7 +4,9 @@ package project.newsagency.server.persistence.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "authors")
@@ -17,7 +19,8 @@ public class Author {
     public String password;
 
     @ManyToMany(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+            cascade = {CascadeType.MERGE},
+            fetch = FetchType.EAGER
     )
     @JoinTable(name = "author_to_article",
             joinColumns = @JoinColumn(name = "author_id"),
