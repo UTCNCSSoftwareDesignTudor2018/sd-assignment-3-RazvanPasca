@@ -3,52 +3,37 @@ package project.newsagency.client.entities;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import project.newsagency.client.commands.Command;
+import project.newsagency.client.controller.utils.ClientCommandInterpreter;
+import project.newsagency.server.persistence.entities.Article;
+import project.newsagency.utils.commands.Command;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
-import static project.newsagency.config.ConfigStarter.readConfig;
+import static project.newsagency.config.ConfigSetup.readConfig;
 import static project.newsagency.config.Constants.FILE_LOCATION;
 
-public class SimpleClient {
+public class SimpleClient implements Observer {
+    private ClientCommandInterpreter commandInterpreter;
     private BufferedReader in;
     private PrintWriter clientToServerOut;
-
+    private Socket socket;
 
     public SimpleClient() throws IOException {
-
-        int port = readConfig(FILE_LOCATION);
-        connectToServer(port);
-//        dataField.addActionListener(new ActionListener() {
-//
-//            public void actionPerformed(ActionEvent e) {
-//                clientToServerOut.println(dataField.getText());
-//                String response;
-//                try {
-//                    response = in.readLine();
-//                    if (response == null || response.equals("")) {
-//                        System.exit(0);
-//                    }
-//                } catch (IOException ex) {
-//                    response = "Error: " + ex;
-//                }
-//                messageArea.append(response + "\n");
-//                dataField.selectAll();
-//            }
-//        });
+        connectToServer();
     }
 
-
-    public void connectToServer(int port) throws IOException {
-
-
-        // Make connection and initialize streams
-        Socket socket = new Socket("127.0.0.1", port);
+    public void connectToServer() throws IOException {
+        int port = readConfig(FILE_LOCATION);
+        socket = new Socket("127.0.0.1", port);
         in = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()));
         clientToServerOut = new PrintWriter(socket.getOutputStream(), true);
@@ -60,9 +45,22 @@ public class SimpleClient {
     }
 
     public void sendCommand(Command command) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        ObjectMapper objectMapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
+                configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         String jsonString = objectMapper.writeValueAsString(command);
         clientToServerOut.println(jsonString);
+        System.out.println("I sent " + jsonString + " command");
     }
 
+    public void getCommands() throws IOException {
+        String input = in.readLine();
+        commandInterpreter.setJson(input);
+        commandInterpreter.executeCommand(clientToServerOut);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Set<Article> articles = (Set<Article>) arg;
+        System.out.println(articles);
+    }
 }

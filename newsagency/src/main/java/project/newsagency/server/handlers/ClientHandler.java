@@ -1,5 +1,8 @@
 package project.newsagency.server.handlers;
 
+import project.newsagency.server.handlers.utils.BeanUtil;
+import project.newsagency.server.handlers.utils.ServerCommandInterpreter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,9 +10,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientHandler extends Thread {
-
+    private ServerCommandInterpreter commandInterpreter = BeanUtil.getBean(ServerCommandInterpreter.class);
     private Socket socket;
     private int clientNumber;
+    private BufferedReader in;
+    private PrintWriter serverToClientOut;
 
     public ClientHandler(Socket socket, int clientNumber) {
         this.socket = socket;
@@ -17,32 +22,34 @@ public class ClientHandler extends Thread {
         log("New connection with client# " + clientNumber + " at " + socket);
     }
 
+    private ClientHandler() {
+    }
+
     @Override
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(
+            in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
-            PrintWriter serverToClientOut = new PrintWriter(socket.getOutputStream(), true);
+            serverToClientOut = new PrintWriter(socket.getOutputStream(), true);
             sendClientWelcomeMessage(serverToClientOut);
 
-            // Get messages from the client, line by line; return them capitalized
             while (true) {
                 String input = in.readLine();
                 if (input == null || input.equalsIgnoreCase("close")) {
                     break;
                 }
-                System.out.println("I have received " + input);
-                serverToClientOut.println(input.toUpperCase());
+                commandInterpreter.setJson(input);
+                commandInterpreter.executeCommand(serverToClientOut);
             }
         } catch (IOException e) {
-            log("Error handling client# " + clientNumber + ": " + e);
+            log("Error handling client #" + clientNumber + ": " + e);
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
                 log("Couldn't close a socket, what's going on?");
             }
-            log("Connection with client# " + clientNumber + " closed");
+            log("Connection with client #" + clientNumber + " closed");
         }
     }
 

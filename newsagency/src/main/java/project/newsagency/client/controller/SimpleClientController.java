@@ -1,13 +1,14 @@
 package project.newsagency.client.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import project.newsagency.client.commands.FetchArticlesCommand;
-import project.newsagency.client.commands.LoginCommand;
 import project.newsagency.client.entities.SimpleClient;
 import project.newsagency.client.view.SimpleClientView;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.server.persistence.entities.Author;
+import project.newsagency.utils.commands.client.LoginCommand;
+import project.newsagency.utils.commands.server.FetchArticlesCommand;
 
+import java.io.IOException;
 import java.util.List;
 
 public class SimpleClientController {
@@ -19,6 +20,7 @@ public class SimpleClientController {
     public SimpleClientController(SimpleClientView simpleClientView, SimpleClient client) throws JsonProcessingException {
         this.client = client;
         this.simpleClientView = simpleClientView;
+        System.out.println("here");
         client.sendCommand(new FetchArticlesCommand());
         addListeners();
     }
@@ -42,5 +44,9 @@ public class SimpleClientController {
         });
     }
 
-
+    public void runClient() throws IOException {
+        while (true) {
+            client.getCommands();
+        }
+    }
 }

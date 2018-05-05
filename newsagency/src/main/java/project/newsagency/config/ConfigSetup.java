@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class ConfigStarter {
+public class ConfigSetup {
 
-    private ConfigStarter() {
+    private ConfigSetup() {
     }
 
     public static int readConfig(String file) throws FileNotFoundException {

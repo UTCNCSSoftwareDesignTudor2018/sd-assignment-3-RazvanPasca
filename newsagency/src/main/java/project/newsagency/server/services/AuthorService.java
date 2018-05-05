@@ -9,5 +9,5 @@ public interface AuthorService {
 
     Article writeArticle(Article article, Author author);
 
-    boolean login(Author author);
+    Author login(Author author);
 }
