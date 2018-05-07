@@ -1,7 +1,6 @@
 package project.newsagency.server.handlers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import project.newsagency.server.handlers.utils.BeanUtil;
 import project.newsagency.server.handlers.utils.ServerCommandInterpreter;
 import project.newsagency.server.persistence.entities.Author;
 
@@ -14,7 +13,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 public class ClientHandler extends Thread implements Observer {
-    private ServerCommandInterpreter commandInterpreter = BeanUtil.getBean(ServerCommandInterpreter.class);
+    private ServerCommandInterpreter commandInterpreter = new ServerCommandInterpreter();
     private Socket socket;
     private int clientNumber;
     private BufferedReader in;
@@ -22,16 +21,15 @@ public class ClientHandler extends Thread implements Observer {
     private Author loggedInAuthor;
 
     public ClientHandler(Socket socket, int clientNumber) {
-        commandInterpreter.addObserver(this);
+        this.commandInterpreter.getArticleService().addObserver(this);
         this.socket = socket;
         this.clientNumber = clientNumber;
-        commandInterpreter.setClientHandler(this);
+        this.commandInterpreter.setClientHandler(this);
         log("New connection with client #" + clientNumber + " at " + socket);
     }
 
     private ClientHandler() {
     }
-
 
     public Author getLoggedInAuthor() {
         return loggedInAuthor;

@@ -19,7 +19,7 @@ public class Author {
     public String password;
 
     @ManyToMany(
-            cascade = {CascadeType.MERGE},
+            cascade = {CascadeType.MERGE, CascadeType.DETACH},
             fetch = FetchType.EAGER
     )
     @JoinTable(name = "author_to_article",

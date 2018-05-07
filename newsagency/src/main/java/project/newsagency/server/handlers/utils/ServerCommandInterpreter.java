@@ -22,13 +22,12 @@ import project.newsagency.utils.commands.server.SuccessfulLoginCommandResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Observable;
 import java.util.Set;
 
 @Component("executor")
-public class ServerCommandInterpreter extends Observable {
+public class ServerCommandInterpreter {
 
-    private ArticleServiceImpl articleService = BeanUtil.getBean(ArticleServiceImpl.class);
+    private ArticleServiceImpl articleService = ArticleServiceImpl.getInstance();
     private AuthorServiceImpl authorService = BeanUtil.getBean(AuthorServiceImpl.class);
     private ServerCommandFactory commandFactory = BeanUtil.getBean(ServerCommandFactory.class);
     private ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
@@ -52,24 +51,19 @@ public class ServerCommandInterpreter extends Observable {
             executeDeleteArticleCommand((DeleteArticleCommand) command);
     }
 
-
     private synchronized void executeDeleteArticleCommand(DeleteArticleCommand command) {
         Article article = command.getArticle();
+        clientHandler.getLoggedInAuthor().removeArticle(article);
         articleService.deleteArticle(article);
-        setChanged();
-        notifyObservers();
-        clearChanged();
         System.out.println("Deleted " + article);
     }
 
     private synchronized void executeCreateArticleCommand(CreateArticleCommand command) {
         Article article = command.getArticle();
         article.addAuthor(clientHandler.getLoggedInAuthor());
-        authorService.save(clientHandler.getLoggedInAuthor());
+        // authorService.save(clientHandler.getLoggedInAuthor());
         articleService.saveArticle(article);
-        setChanged();
-        notifyObservers();
-        clearChanged();
+//        articleService.saveArticle(article);
         System.out.println("Created/Updated " + article);
     }
 
@@ -109,5 +103,9 @@ public class ServerCommandInterpreter extends Observable {
 
     public void setPrintWriter(PrintWriter printWriter) {
         this.serverToClientOut = printWriter;
+    }
+
+    public ArticleServiceImpl getArticleService() {
+        return articleService;
     }
 }

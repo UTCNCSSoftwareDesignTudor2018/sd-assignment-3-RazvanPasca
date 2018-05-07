@@ -11,8 +11,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Autowired
     AuthorRepository authorRepository;
-    @Autowired
-    ArticleService articleService;
+    ArticleService articleService = ArticleServiceImpl.getInstance();
 
     @Override
     public Article editArticle(Article article, Author author) {

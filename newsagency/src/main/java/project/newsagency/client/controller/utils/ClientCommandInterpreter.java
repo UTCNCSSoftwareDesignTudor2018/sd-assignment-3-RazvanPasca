@@ -1,9 +1,5 @@
 package project.newsagency.client.controller.utils;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import project.newsagency.client.entities.Client;
 import project.newsagency.server.persistence.entities.Article;
 import project.newsagency.utils.commands.Command;
@@ -21,8 +17,6 @@ public class ClientCommandInterpreter {
     private PrintWriter clientToServerOut;
     private ClientCommandFactory commandFactory = new ClientCommandFactory();
     private String jsonString;
-    private ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).
-            configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
     private Client client;
 
     public ClientCommandInterpreter() {
@@ -58,6 +52,6 @@ public class ClientCommandInterpreter {
 
     private void executeFetchArticlesCommandResponse(FetchArticlesCommandResponse command) {
         List<Article> articles = new ArrayList<>(command.getArticles());
-        client.setArticles(articles);
+        this.client.setArticles(articles);
     }
 }

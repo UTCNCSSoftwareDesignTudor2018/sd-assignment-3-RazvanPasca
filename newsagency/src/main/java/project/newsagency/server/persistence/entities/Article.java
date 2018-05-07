@@ -17,7 +17,7 @@ public class Article {
 
     @ManyToMany(fetch = FetchType.EAGER,
             mappedBy = "articles",
-            cascade = {CascadeType.MERGE})
+            cascade = {CascadeType.MERGE, CascadeType.DETACH})
     private Set<Author> authors = new HashSet<>();
 
     public Article(String title, String abs, String body, Author author) {
