@@ -18,13 +18,9 @@ public class Author {
     public String userName;
     public String password;
 
-    @ManyToMany(
-            cascade = {CascadeType.MERGE, CascadeType.DETACH},
-            fetch = FetchType.EAGER
-    )
-    @JoinTable(name = "author_to_article",
-            joinColumns = @JoinColumn(name = "author_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id"))
+    @ManyToMany(fetch = FetchType.EAGER,
+            mappedBy = "authors",
+            cascade = {CascadeType.MERGE, CascadeType.DETACH})
     @JsonIgnore
     private Set<Article> articles = new HashSet<>();
 

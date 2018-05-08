@@ -15,9 +15,13 @@ public class Article {
     private String abs;
     private String body;
 
-    @ManyToMany(fetch = FetchType.EAGER,
-            mappedBy = "articles",
-            cascade = {CascadeType.MERGE, CascadeType.DETACH})
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.DETACH},
+            fetch = FetchType.EAGER
+    )
+    @JoinTable(name = "author_to_article",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> authors = new HashSet<>();
 
     public Article(String title, String abs, String body, Author author) {
@@ -89,7 +93,6 @@ public class Article {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(articleId, title, abs, body);
     }
 
